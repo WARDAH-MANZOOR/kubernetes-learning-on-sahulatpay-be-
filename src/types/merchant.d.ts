@@ -1,0 +1,88 @@
+export interface Merchant {
+  username: string;
+  email?: string;
+  password?: string;
+  phone_number: string;
+  company_name: string;
+  company_url: string;
+  city: string;
+  payment_volume: string;
+  commission: number;
+  merchantId: number;
+  commissionGST: number;
+  commissionWithHoldingTax: number;
+  disbursementRate: number;
+  disbursementGST: number;
+  disbursementWithHoldingTax: number;
+  settlementDuration: number;
+  jazzCashMerchantId: number;
+  payFastMerchantId: number;
+  easyPaisaMerchantId: number;
+  billerId: number;
+  swichMerchantId: number;
+  webhook_url: string;
+  easypaisaMinAmtLimit?: number;
+  uid?: string;
+  EasyPaisaDisburseAccountId?: number | null;
+  easypaisaPaymentMethod: "DIRECT" | "SWITCH" | "PAYFAST";
+  easypaisaInquiryMethod: "DATABASE" | "WALLET";
+  JazzCashDisburseAccountId: number;
+  encrypted: string;
+  callback_mode: "SINGLE" | "DOUBLE";
+  payout_callback: string;
+  easypaisaLimit: number;
+  swichLimit: number;
+  commissionMode: "SINGLE" | "DOUBLE";
+  easypaisaRate: number;
+  payfastInquiryMethod: "DATABASE" | "WALLET";
+  jazzCashCardMerchantId: number;
+  jazzCashDisburseInquiryMethod: "DATABASE" | "WALLET";
+  wooMerchantId: number;
+  jazzCashInquiryMethod: "DATABASE" | "WALLET";
+  cardRate: number;
+  usdtPercentage: number;
+  usdtWalletAddress: string;
+  qrRate: number;
+  zindigiRate: number;
+  bankAccount: string;
+  bankName: string;
+  isAssanpay: boolean;
+  qrEnabled: boolean;
+  additionalCallbackParams: boolean;
+  isEasyPaisaIBFTEnabled: boolean;
+  ip?: string;
+  ips?: string[];      // For list of IPs (preferred)
+}
+
+export interface IjazzCashConfigParams {
+  merchantId: string;
+}
+export interface IEasyPaisaPayload {
+  storeId: string;
+  username: string;
+  credentials: string;
+  metadata: any;
+}
+export interface ISwichPayload {
+  clientId: string;
+  clientSecret: string;
+}
+
+export interface IDisbursement {
+  id?: string | number | null;
+  MSISDN: string;
+  clientId: string;
+  clientSecret: string;
+  xChannel: string;
+  pin: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  deletedAt?: Date | null;
+  publicKey: string | null
+}
+
+export interface IZindigiPayload {
+  clientId: string;
+  clientSecret: string;
+  organizationId: string;
+}

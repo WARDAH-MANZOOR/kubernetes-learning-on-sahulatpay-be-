@@ -1,0 +1,35 @@
+import cron from 'node-cron';
+import { backofficeService } from '../services/index.js';
+import prisma from '../prisma/client.js';
+
+async function settleAllFourTimesMerchants() {
+    try {
+      const merchants = await prisma.merchant.findMany({
+        where: { isFourTimesSettlement: true },
+        select: { merchant_id: true, full_name: true }
+      });
+      console.log(merchants)
+      for (const merchant of merchants) {
+        try {
+          await backofficeService.settleAllMerchantTransactions(Number(merchant.merchant_id));
+          console.log(`Settled transactions for merchant ${merchant.merchant_id}`);
+        } catch (err) {
+            console.error("Failed to settle for merchant", {
+                merchantId: merchant.merchant_id,
+                error: err instanceof Error ? { message: err.message, stack: err.stack } : err
+              });
+        }
+      }
+      console.log("All instant settlement merchants processed.");
+    } catch (err) {
+      console.error("Error in settleAllInstantMerchants cron:", err);
+    }
+  }
+// Schedule to run at 12:00 AM and 12:00 PM every day
+const fourTimesSettlementCron = async () => {
+  console.log('[CRON] Starting instant settlement for all eligible merchants...');
+  await settleAllFourTimesMerchants();
+  console.log('[CRON] Finished instant settlement for all eligible merchants.');
+};
+
+export default fourTimesSettlementCron; 

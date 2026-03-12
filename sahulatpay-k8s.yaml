@@ -1,0 +1,130 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sahulatpay
+
+---
+
+# PostgreSQL Persistent Volume Claim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: sahulatpay
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+# PostgreSQL Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: sahulatpay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15
+          env:
+            - name: POSTGRES_DB
+              value: "erp_db"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "ambreen1234"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-storage
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+
+---
+
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  namespace: sahulatpay
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+
+---
+
+# Backend Deployment with Init Container for Prisma Migrations
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sahulatpay-backend
+  namespace: sahulatpay
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sahulatpay-backend
+  template:
+    metadata:
+      labels:
+        app: sahulatpay-backend
+    spec:
+      initContainers:
+        - name: prisma-migrate
+          image: wardahmanzoor/sahulatpaydockerrepository:01
+          command:
+            - sh
+            - -c
+            - |
+              echo "Running Prisma migrations..."
+              npx prisma migrate deploy --schema src/prisma/schema.prisma
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:ambreen1234@postgres-service:5432/erp_db"
+      containers:
+        - name: sahulatpay-backend
+          image: wardahmanzoor/sahulatpaydockerrepository:01
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:ambreen1234@postgres-service:5432/erp_db"
+          ports:
+            - containerPort: 3000
+          command: ["sh", "-c", "npx prisma generate --schema src/prisma/schema.prisma && npm run start"]
+
+---
+
+# Backend Service (NodePort for testing)
+apiVersion: v1
+kind: Service
+metadata:
+  name: sahulatpay-backend-service
+  namespace: sahulatpay
+spec:
+  type: NodePort
+  selector:
+    app: sahulatpay-backend
+  ports:
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30030
