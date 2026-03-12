@@ -1,0 +1,22 @@
+IMPLEMENTATION OF KUBERNETES(MINIKUBE) ON SAHULATPAY-BE REPO CODE: 
+
+first make repository in docker hub 
+
+then make docker file and .dockerignore file 
+
+then run this command : docker build -t wardahmanzoor/sahulatpaydockerrepository:01 .  (wardahmanzoor/sahulatpaydockerrepository--this is repsitory name in docker hub)(:01 --- this is tag , this can be 01,02,03 etc)
+
+then after building docker image push docker image in dockerhub repository for this use this command: docker push wardahmanzoor/sahulatpaydockerrepository:01 
+
+then after the push command refresh docker hub and check for docker image in tags section of repository
+
+then start minikube and check status :minikube start(for starting minkiube), minikube status(for checking status of minikube running or not)
+
+then create deployment by running this command: kubectl create deployment sahulatpay-backend-01 --image=wardahmanzoor/sahulatpaydockerrepository:01  
+ ( "sahulatpay-backend-01" this is the deployment name, "image=wardahmanzoor/sahulatpaydockerrepository:01" this is image name )
+
+then run this command for running yaml file: kubectl apply -f sahulatpay-k8s.yaml
+
+then run this command for checking deployment working or not: kubectl get deployments -n sahulatpay  
+
+then run this command for checking pods running or not:  kubectl get pods -n sahulatpay
